@@ -116,6 +116,8 @@ public class Order {
 
     @Override
     public String toString() {
+
+        // Thaddy help
         return "Order{" +
                 "bicycleDetails='" + BicycleDetails + '\'' +
                 ", date='" + Date + '\'' +
