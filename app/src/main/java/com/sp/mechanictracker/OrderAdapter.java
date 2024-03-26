@@ -79,6 +79,18 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
                     if ("Completed".equals(selectedStatus)) {
                         String orderID = retrievedOrderID.getText().toString();
                         sendOrderToCompleted(orderID);
+                    } if ("Issues".equals(selectedStatus)) {
+                        String orderID = retrievedOrderID.getText().toString();
+                        sendOrderToCompleted(orderID);
+                    } if ("Arrange".equals(selectedStatus)) {
+                        String orderID = retrievedOrderID.getText().toString();
+                        sendOrderToCompleted(orderID);
+                    } if ("Completed".equals(selectedStatus)) {
+                        String orderID = retrievedOrderID.getText().toString();
+                        sendOrderToCompleted(orderID);
+                    } if ("Completed".equals(selectedStatus)) {
+                        String orderID = retrievedOrderID.getText().toString();
+                        sendOrderToCompleted(orderID);
                     }
                 }
 
@@ -102,6 +114,8 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
             statusAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             retrievedStatus.setAdapter(statusAdapter);
         }
+
+
         private void sendOrderToCompleted(String orderID) {
             // Here you can send the order details to Firebase Firestore
             FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -159,8 +173,6 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
                         }
                     });
         }
-
-
 
         public void bind(Order order) {
             // Set the first image (if available)
