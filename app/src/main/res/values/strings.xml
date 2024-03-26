@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Mechanic Tracker</string>
+    <string name="api_key">TestKey</string>
+</resources>
