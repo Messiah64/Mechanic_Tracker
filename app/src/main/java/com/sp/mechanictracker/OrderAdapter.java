@@ -48,7 +48,6 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         private ImageView firstImage;
-
         private TextView retrievedPhoneNumber;
         private Spinner retrievedStatus;
         private TextView retrievedOrderID;
@@ -78,7 +77,6 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
             statusAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             retrievedStatus.setAdapter(statusAdapter);
         }
-
         public void bind(Order order) {
             // Set the first image (if available)
             if (order.getImages() != null && !order.getImages().isEmpty()) {

@@ -4,7 +4,12 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.text.ParseException;
+import java.util.Comparator;
+import java.util.Collections;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -103,10 +108,29 @@ public class Ongoing_Orders extends AppCompatActivity {
     }
 
     private void populateRecyclerView(List<Order> ordersList, List<String> statusList) {
+        // Sort ordersList by date in ascending order
+        Collections.sort(ordersList, new Comparator<Order>() {
+            DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
+
+            @Override
+            public int compare(Order order1, Order order2) {
+                try {
+                    Date date1 = dateFormat.parse(order1.getDate());
+                    Date date2 = dateFormat.parse(order2.getDate());
+                    return date1.compareTo(date2);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                    return 0;
+                }
+            }
+        });
+
+        // Create and set adapter
         OrderAdapter adapter = new OrderAdapter(ordersList, statusList);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
     }
+
 
 
 }

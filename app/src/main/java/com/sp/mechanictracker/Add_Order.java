@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
+import android.app.DatePickerDialog;
 import android.content.pm.PackageManager;
 
 import android.app.Activity;
@@ -22,6 +23,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
@@ -70,7 +72,9 @@ public class Add_Order extends AppCompatActivity {
     boolean newCustomer = false; // Flag if new Customer
 
     // Input Variables
-    EditText phoneNumber, PIDNumber, bicycleDetails, date, time, mechanicName, notes;
+    EditText phoneNumber, bicycleDetails, date, time, mechanicName, notes;
+
+    TextView PIDNumber;
     Button submitBtn;
     String spinnerDeliveryModeValue="", spinnerPackageTypeValue="";
     Spinner deliveryMode, packageType;
@@ -106,6 +110,13 @@ public class Add_Order extends AppCompatActivity {
         time = findViewById(R.id.timePick);
         mechanicName = findViewById(R.id.mechanic);
         notes = findViewById(R.id.notes);
+
+        // Date picker code
+        date.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) { openCalenderDialog(); }
+        });
+
 
         // Link form data variables (Spinners)
         deliveryMode = findViewById(R.id.DeliveryPick);
@@ -209,6 +220,18 @@ public class Add_Order extends AppCompatActivity {
             }
         });
 
+    }
+
+    // Date logic code
+    public void openCalenderDialog() {
+        DatePickerDialog dialog = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker datePicker, int year, int month, int day) {
+                date.setText(String.valueOf(day) + "." + String.valueOf(month+1) + "." + String.valueOf(year));
+            }
+        }, 2024, 0, 15);
+
+        dialog.show();
     }
 
     @Override

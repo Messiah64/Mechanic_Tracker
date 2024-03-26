@@ -3,13 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="200dp"
+    android:layout_height="160dp"
     android:layout_gravity="center_horizontal"
     android:background="#00FFFFFF"
     app:strokeWidth="0dp">
 
     <com.google.android.material.card.MaterialCardView
-        android:layout_width="362dp"
+        android:layout_width="360dp"
         android:layout_height="150dp"
         android:layout_gravity="center"
         app:strokeWidth="2dp">
@@ -116,15 +116,17 @@
 
                     <TextView
                         android:id="@+id/retrievedDate"
-                        android:layout_width="24dp"
+                        android:layout_width="45dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="14 Feb" />
+                        android:text="14 Feb"
+                        android:textSize="14sp" />
 
                     <ImageView
                         android:id="@+id/imageView4"
                         android:layout_width="10dp"
                         android:layout_height="20dp"
+                        android:layout_marginStart="5dp"
                         android:layout_weight="1"
                         app:srcCompat="@drawable/history" />
 
