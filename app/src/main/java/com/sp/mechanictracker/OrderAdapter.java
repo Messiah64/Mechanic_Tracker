@@ -1,5 +1,6 @@
 package com.sp.mechanictracker;
 import android.graphics.Color;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,10 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -72,11 +77,8 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
                 public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
                     String selectedStatus = statusList.get(position);
                     if ("Completed".equals(selectedStatus)) {
-                        int adapterPosition = getAdapterPosition();
-                        if (adapterPosition != RecyclerView.NO_POSITION) {
-                            ordersList.remove(adapterPosition);
-                            notifyItemRemoved(adapterPosition);
-                        }
+                        String orderID = retrievedOrderID.getText().toString();
+                        sendOrderToCompleted(orderID);
                     }
                 }
 
@@ -100,13 +102,73 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
             statusAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             retrievedStatus.setAdapter(statusAdapter);
         }
+        private void sendOrderToCompleted(String orderID) {
+            // Here you can send the order details to Firebase Firestore
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            CollectionReference completedRef = db.collection("Completed");
+
+            // Get the order details from the ordersList using the orderID
+            for (Order order : ordersList) {
+                if (order.getOrderID().equals(orderID)) {
+                    // Create a new document with the orderID as the document name
+                    completedRef.document(orderID)
+                            .set(order)
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Log.d("OrderAdapter", "Order sent to Completed collection");
+                                    // Optionally, you can remove the order from the RecyclerView
+                                    deleteOrderFromOrders(orderID);
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.e("OrderAdapter", "Error sending order to Completed collection", e);
+                                }
+                            });
+                    break;
+                }
+            }
+        }
+
+
+        private void deleteOrderFromOrders(String orderID) {
+            // Here you can delete the document from the "Orders" collection
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            CollectionReference ordersRef = db.collection("Orders");
+
+            ordersRef.document(orderID)
+                    .delete()
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.d("OrderAdapter", "Order deleted from Orders collection");
+                            // Optionally, you can remove the order from the RecyclerView
+                            int adapterPosition = getAdapterPosition();
+                            if (adapterPosition != RecyclerView.NO_POSITION) {
+                                ordersList.remove(adapterPosition);
+                                notifyItemRemoved(adapterPosition);
+                            }
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.e("OrderAdapter", "Error deleting order from Orders collection", e);
+                        }
+                    });
+        }
+
+
+
         public void bind(Order order) {
             // Set the first image (if available)
             if (order.getImages() != null && !order.getImages().isEmpty()) {
                 Picasso.get().load(order.getImages().get(0)).into(firstImage);
             } else {
                 // Set a placeholder image if no images available
-                firstImage.setImageResource(R.drawable.ic_launcher_background);
+                firstImage.setImageResource(R.drawable.nopictures);
             }
 
             retrievedPID.setText(order.getPID());
@@ -128,6 +190,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
                 retrievedDeliveryMode.setImageResource(R.drawable.fast);
             } else {
                 retrievedDeliveryMode.setImageResource(R.drawable.handshake);
+                retrievedDeliveryMode.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
             }
 
             // Set retrievedPackage text
@@ -145,7 +208,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
             }
             if (order.getPackage().equals("Rec")) {
                 retrievedPackage.setText(order.getPackage());
-                retrievedPackage.setBackgroundColor(Color.parseColor("#C0C0C0"));
+                retrievedPackage.setBackgroundColor(Color.parseColor("#FFC0CB"));
             }
             if (order.getPackage().equals("Nil")) {
                 retrievedPackage.setText(order.getPackage());
