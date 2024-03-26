@@ -134,7 +134,7 @@ public class Add_Order extends AppCompatActivity {
                 // Retrieve the selected item
                 spinnerDeliveryModeValue = (String) parent.getItemAtPosition(position);
                 // Display a toast with the selected item
-                Toast.makeText(Add_Order.this, "Selected: " + spinnerDeliveryModeValue, Toast.LENGTH_SHORT).show();
+                // Toast.makeText(Add_Order.this, "Selected: " + spinnerDeliveryModeValue, Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -161,7 +161,7 @@ public class Add_Order extends AppCompatActivity {
                 // Retrieve the selected item
                 spinnerPackageTypeValue = (String) parent.getItemAtPosition(position);
                 // Display a toast with the selected item
-                Toast.makeText(Add_Order.this, "Selected: " + spinnerPackageTypeValue, Toast.LENGTH_SHORT).show();
+                // Toast.makeText(Add_Order.this, "Selected: " + spinnerPackageTypeValue, Toast.LENGTH_SHORT).show();
             }
 
             @Override

@@ -3,6 +3,7 @@ import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -63,7 +64,29 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
             firstImage = itemView.findViewById(R.id.firstImage);
             retrievedPID = itemView.findViewById(R.id.retrievedPID);
             retrievedPhoneNumber = itemView.findViewById(R.id.retrievedPhoneNumber);
+
+            // Injected Logic, into class LMAO
             retrievedStatus = itemView.findViewById(R.id.retrievedStatus);
+            retrievedStatus.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
+                    String selectedStatus = statusList.get(position);
+                    if ("Completed".equals(selectedStatus)) {
+                        int adapterPosition = getAdapterPosition();
+                        if (adapterPosition != RecyclerView.NO_POSITION) {
+                            ordersList.remove(adapterPosition);
+                            notifyItemRemoved(adapterPosition);
+                        }
+                    }
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> adapterView) {
+                    // Do nothing
+                }
+            });
+
+
             retrievedOrderID = itemView.findViewById(R.id.retrievedOrderID);
             retrievedDate = itemView.findViewById(R.id.retrievedDate);
             retrievedTime = itemView.findViewById(R.id.retrievedTime);
