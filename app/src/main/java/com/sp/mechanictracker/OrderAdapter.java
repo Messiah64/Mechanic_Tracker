@@ -81,16 +81,16 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
                         sendOrderToCompleted(orderID);
                     } if ("Issues".equals(selectedStatus)) {
                         String orderID = retrievedOrderID.getText().toString();
-                        sendOrderToCompleted(orderID);
+
                     } if ("Arrange".equals(selectedStatus)) {
                         String orderID = retrievedOrderID.getText().toString();
-                        sendOrderToCompleted(orderID);
-                    } if ("Completed".equals(selectedStatus)) {
+
+                    } if ("Repairing".equals(selectedStatus)) {
                         String orderID = retrievedOrderID.getText().toString();
-                        sendOrderToCompleted(orderID);
-                    } if ("Completed".equals(selectedStatus)) {
+
+                    } if ("Pending".equals(selectedStatus)) {
                         String orderID = retrievedOrderID.getText().toString();
-                        sendOrderToCompleted(orderID);
+
                     }
                 }
 
