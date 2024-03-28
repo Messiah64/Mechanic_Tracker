@@ -71,9 +71,26 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1" />
 
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/StatusCard"
+                        android:layout_width="match_parent"
+                        android:layout_height="34dp"
+                        android:layout_gravity="center"
+                        app:cardCornerRadius="50dp"
+                        app:cardElevation="5dp">
+
+                        <TextView
+                            android:id="@+id/StatusText"
+                            android:layout_width="70dp"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:text="test"
+                            android:textSize="10sp" />
+                    </androidx.cardview.widget.CardView>
+
                     <Spinner
                         android:id="@+id/retrievedStatus"
-                        android:layout_width="wrap_content"
+                        android:layout_width="40dp"
                         android:layout_height="match_parent"
                         android:layout_weight="1" />
 

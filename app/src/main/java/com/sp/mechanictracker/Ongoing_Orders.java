@@ -22,13 +22,16 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.FirebaseStorage;
 
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class Ongoing_Orders extends AppCompatActivity {
 
@@ -42,6 +45,8 @@ public class Ongoing_Orders extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_homepage);
+
+        subscribeToNewsTopic();
 
         // Firebase Firestore & Storage Instances
         db = FirebaseFirestore.getInstance();
@@ -72,6 +77,19 @@ public class Ongoing_Orders extends AppCompatActivity {
         // Bottom Nav Bar Ends
 
         fetchOrdersFromFirestore();
+    }
+
+    public static void subscribeToNewsTopic() {
+        FirebaseMessaging.getInstance().subscribeToTopic("News")
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        // Subscription successful
+                        // You may want to notify the user or update UI accordingly
+                    } else {
+                        // Subscription failed
+                        // Handle the error
+                    }
+                });
     }
 
     private void fetchOrdersFromFirestore() {
