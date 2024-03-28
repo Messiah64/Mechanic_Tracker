@@ -1,6 +1,7 @@
 package com.sp.mechanictracker;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -10,11 +11,15 @@ import java.util.Date;
 import java.text.ParseException;
 import java.util.Comparator;
 import java.util.Collections;
+
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.ScrollView;
+import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -33,7 +38,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class Ongoing_Orders extends AppCompatActivity {
+public class Ongoing_Orders extends AppCompatActivity implements OrderAdapter.OnInfoOptionClickListener{
 
     private ImageView repair, add, complete;
     private FirebaseStorage storage;
@@ -143,12 +148,87 @@ public class Ongoing_Orders extends AppCompatActivity {
             }
         });
 
-        // Create and set adapter
-        OrderAdapter adapter = new OrderAdapter(ordersList, statusList);
+        // Create and set adapter with info option click listener
+        OrderAdapter adapter = new OrderAdapter(ordersList, statusList, recyclerView, new OrderAdapter.OnInfoOptionClickListener() {
+            @Override
+            public void onInfoOptionClicked(Order order) {
+                // Show popup dialog with order information
+                showInfoPopupDialog(order);
+            }
+
+            @Override
+            public void onDeleteOptionClicked(Order order, int position) {
+                // Delete the order from Firestore and notify adapter
+                deleteOrderFromOrders(order.getOrderID(), position);
+            }
+        });
+
+
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
     }
 
 
+    @Override
+    public void onInfoOptionClicked(Order order) {
+        // Show popup dialog with order information
+        showInfoPopupDialog(order);
+    }
+
+    @Override
+    public void onDeleteOptionClicked(Order order, int position) {
+        // Call the method to delete the order
+        deleteOrderFromOrders(order.getOrderID(), position);
+    }
+
+    private void deleteOrderFromOrders(String orderID, int position) {
+        // Your existing code to delete the order
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        CollectionReference ordersRef = db.collection("Orders");
+
+        ordersRef.document(orderID)
+                .delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d("OrderAdapter", "Order deleted from Orders collection");
+                        // Notify adapter about item removal
+                        recyclerView.getAdapter().notifyItemRemoved(position);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.e("OrderAdapter", "Error deleting order from Orders collection", e);
+                    }
+                });
+    }
+
+
+
+    private void showInfoPopupDialog(Order order) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Order Information");
+
+        // Create a ScrollView and wrap the message inside it
+        ScrollView scrollView = new ScrollView(this);
+        TextView messageTextView = new TextView(this);
+        messageTextView.setText("Order ID: " + order.getOrderID() + "\nOrder PID: " + order.getPID() + "\nPhone Number: " + order.getPhone() + "\nNotes: " + order.getNotes());
+        // Set padding to provide some space around the text
+        int padding = (int) getResources().getDimension(R.dimen.alert_dialog_padding);
+        messageTextView.setPadding(padding, padding, padding, padding);
+        scrollView.addView(messageTextView);
+
+        builder.setView(scrollView);
+
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
 
 }

@@ -1,5 +1,6 @@
 package com.sp.mechanictracker;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -7,6 +8,7 @@ import android.view.View;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -28,7 +30,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
-public class Completed_Orders extends AppCompatActivity {
+public class Completed_Orders extends AppCompatActivity implements OrderAdapter.OnInfoOptionClickListener{
 
     private ImageView repair, add, complete;
     private FirebaseStorage storage;
@@ -69,6 +71,8 @@ public class Completed_Orders extends AppCompatActivity {
 
         fetchOrdersFromFirestore();
     }
+
+
 
 
     private void fetchOrdersFromFirestore() {
@@ -117,10 +121,54 @@ public class Completed_Orders extends AppCompatActivity {
             }
         });
 
-        // Create and set adapter
-        OrderAdapter adapter = new OrderAdapter(ordersList, statusList);
+        // Create and set adapter with info option click listener
+        OrderAdapter adapter = new OrderAdapter(ordersList, statusList, recyclerView, new OrderAdapter.OnInfoOptionClickListener() {
+            @Override
+            public void onInfoOptionClicked(Order order) {
+                // Show popup dialog with order information
+                showInfoPopupDialog(order);
+            }
+
+            @Override
+            public void onDeleteOptionClicked(Order order, int position) {
+                // Delete the order from Firestore and notify adapter
+                deleteOrderFromOrders(order.getOrderID(), position);
+            }
+        });
+        
+        
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
     }
+
+    private void deleteOrderFromOrders(String orderID, int position) {
+    }
+
+    @Override
+    public void onInfoOptionClicked(Order order) {
+        // Show popup dialog with order information
+        showInfoPopupDialog(order);
+    }
+
+    @Override
+    public void onDeleteOptionClicked(Order order, int position) {
+
+    }
+
+    private void showInfoPopupDialog(Order order) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Order Information");
+        builder.setMessage("Order ID: " + order.getOrderID() + "\nDate: " + order.getDate() + "\nTime: " + order.getTime() + "\nStatus: " + order.getStatus());
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+
 
 }

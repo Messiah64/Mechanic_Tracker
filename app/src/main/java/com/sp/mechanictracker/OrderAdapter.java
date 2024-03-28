@@ -1,9 +1,11 @@
 
 package com.sp.mechanictracker;
 import android.app.Notification;
+import android.content.Intent;
 import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -43,9 +45,21 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
     public List<String> statusList;
     private boolean isFirstItem = true;
 
-    public OrderAdapter(List<Order> ordersList, List<String> statusList) {
+    private RecyclerView recyclerView;
+
+    private OnInfoOptionClickListener infoOptionClickListener;
+
+    // Constructor
+    public OrderAdapter(List<Order> ordersList, List<String> statusList, RecyclerView recyclerView, OnInfoOptionClickListener listener) {
         this.ordersList = ordersList;
         this.statusList = statusList;
+        this.recyclerView = recyclerView; // Add this line
+        this.infoOptionClickListener = listener;
+    }
+    // Interface for Info option click listener
+    public interface OnInfoOptionClickListener {
+        void onInfoOptionClicked(Order order);
+        void onDeleteOptionClicked(Order order, int position);
     }
 
     @NonNull
@@ -93,9 +107,10 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
             imageButtonMenu.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    menuButtons(view);
+                    menuButtons(view, ordersList.get(getAdapterPosition()));
                 }
             });
+
 
 
             status = itemView.findViewById(R.id.StatusText);
@@ -155,8 +170,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
             retrievedStatus.setAdapter(statusAdapter);
         }
 
-        public void menuButtons(View v) {
-
+        public void menuButtons(View v, Order order) {
             if (v.getId() == R.id.imageButtonMenu) {
                 // Show popup menu
                 PopupMenu popupMenu = new PopupMenu(itemView.getContext(), imageButtonMenu);
@@ -165,28 +179,70 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
                 // Set listener for menu item clicks
                 popupMenu.setOnMenuItemClickListener(item -> {
                     int itemId = item.getItemId();
-
                     if (itemId == R.id.edit_option) {
                         Log.d("Menu", "Edit Option");
                         // Handle edit option
+                        editOrder(order);
                     } else if (itemId == R.id.delete_option) {
                         Log.d("Menu", "Delete Option");
                         // Handle delete option
+                        deleteOrderFromOrders(order.getOrderID());
                     } else if (itemId == R.id.info_option) {
                         Log.d("Menu", "Info Option");
-
+                        // Handle info option
+                        if (infoOptionClickListener != null) {
+                            infoOptionClickListener.onInfoOptionClicked(order);
+                        }
                     } else if (itemId == R.id.whatsapp_option) {
-                        Log.d("Menu", "Whatsapp Option");
+                        Log.d("Menu", "WhatsApp Option");
                         // Handle WhatsApp option
                     }
-
                     return true;
                 });
 
                 // Show the popup menu
                 popupMenu.show();
             }
+        }
 
+        private void editOrder(Order order) {
+            Intent intent = new Intent(itemView.getContext(), Edit_Order.class);
+            intent.putExtra("phone", order.getPhone());
+            intent.putExtra("bicycle", order.getBicycleDetails());
+            intent.putExtra("date", order.getDate());
+            intent.putExtra("time", order.getTime());
+            intent.putExtra("mechanic", order.getMechanic());
+            intent.putExtra("notes", order.getNotes());
+            intent.putExtra("pid", order.getPID());
+            intent.putExtra("phone_replace", order.getPhone());
+            intent.putExtra("delivery", order.getDeliveryMethod());
+            intent.putExtra("package", order.getPackage());
+            intent.putExtra("orderID", order.getOrderID());
+            intent.putExtra("status", order.getStatus());
+
+            itemView.getContext().startActivity(intent);
+        }
+
+
+        public boolean onMenuItemClick(MenuItem item) {
+            int itemId = item.getItemId();
+            if (itemId == R.id.edit_option) {
+                // Handle edit option
+            } else if (itemId == R.id.delete_option) {
+                // Handle delete option
+            } else if (itemId == R.id.info_option) {
+                // Handle info option
+                if (infoOptionClickListener != null) {
+                    int position = getAdapterPosition();
+                    if (position != RecyclerView.NO_POSITION) {
+                        Order order = ordersList.get(position);
+                        infoOptionClickListener.onInfoOptionClicked(order);
+                    }
+                }
+            } else if (itemId == R.id.whatsapp_option) {
+                // Handle WhatsApp option
+            }
+            return true;
         }
 
 
