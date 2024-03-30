@@ -23,6 +23,7 @@
             android:exported="false" />
         <activity
             android:name=".Add_Order"
+            android:windowSoftInputMode="adjustResize"
             android:exported="false" />
         <activity
             android:name=".Ongoing_Orders"

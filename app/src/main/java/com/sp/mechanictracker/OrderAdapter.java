@@ -1,8 +1,10 @@
 
 package com.sp.mechanictracker;
 import android.app.Notification;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -19,6 +21,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -82,6 +85,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
+
         private ImageView firstImage;
         private TextView retrievedPhoneNumber;
         private Spinner retrievedStatus;
@@ -95,6 +99,8 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
         private TextView status;
         private CardView statusColour;
         private ImageButton imageButtonMenu;
+
+
 
 
         public ViewHolder(@NonNull View itemView) {
@@ -113,23 +119,49 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
 
 
 
+
+
             status = itemView.findViewById(R.id.StatusText);
+            status.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    refreshScreen();
+                }
+            });
             statusColour = itemView.findViewById(R.id.StatusCard);
 
             // Injected Logic, into class LMAO
             retrievedStatus = itemView.findViewById(R.id.retrievedStatus);
+
+            // Define the confirmation dialog outside of the listener
+            final AlertDialog.Builder builder = new AlertDialog.Builder(itemView.getContext());
+            builder.setMessage("Are you sure you want to proceed?")
+                    .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            String orderID = retrievedOrderID.getText().toString();
+                            updateStatusForCompletedOnly(orderID, "Completed");
+                            Log.d("STATUS CHANGED", "Completed");
+                        }
+                    })
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            // Do nothing, user cancelled
+                        }
+                    });
+
+            final AlertDialog alertDialog = builder.create();
             retrievedStatus.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
                     String selectedStatus = statusList.get(position);
                     if ("Completed".equals(selectedStatus)) {
-                        String orderID = retrievedOrderID.getText().toString();
-                        updateStatusForCompletedOnly(orderID, selectedStatus);
-                        Log.d("STATUS CHANGED", selectedStatus);
+                        alertDialog.show(); // Show the dialog when "Completed" is selected
+                    }
 
-                    } if ("Issues".equals(selectedStatus)) {
+                    if ("Issues".equals(selectedStatus)) {
                         String orderID = retrievedOrderID.getText().toString();
                         updateStatus(orderID, selectedStatus);
+                        notifyDataSetChanged();
                         Log.d("STATUS CHANGED", selectedStatus);
 
                     } if ("Arrange".equals(selectedStatus)) {
@@ -147,12 +179,17 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
                         updateStatus(orderID, selectedStatus);
                         Log.d("STATUS CHANGED", selectedStatus);
                     }
+
+
                 }
+
 
                 @Override
                 public void onNothingSelected(AdapterView<?> adapterView) {
                     // Do nothing
                 }
+
+
             });
 
 
@@ -205,6 +242,13 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
             }
         }
 
+
+
+        private void refreshScreen() {
+            Intent intent = new Intent(itemView.getContext(), Ongoing_Orders.class);
+            itemView.getContext().startActivity(intent);
+        }
+
         private void editOrder(Order order) {
             Intent intent = new Intent(itemView.getContext(), Edit_Order.class);
             intent.putExtra("phone", order.getPhone());
@@ -247,6 +291,8 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
 
 
         private void updateStatusForCompletedOnly(String orderID, String newStatus) {
+
+
             // Get instance of Firebase Firestore
             FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -324,6 +370,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
                             Log.e("TAG", "Error updating document status", e);
                         }
                     });
+
         }
 
         private void sendOrderToCompleted(String orderID) {
@@ -397,6 +444,56 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
             }
 
             status.setText(order.getStatus());
+
+            if (order.getStatus().toString().equals("OTW")) {
+                // Create a GradientDrawable to set the border color and width
+                GradientDrawable gradientDrawable = new GradientDrawable();
+                gradientDrawable.setShape(GradientDrawable.RECTANGLE);
+                gradientDrawable.setStroke(10, Color.parseColor("#FFFFA0")); // Border width and color
+                gradientDrawable.setColor(Color.parseColor("#FFFFA0")); // Background color (set to transparent to show border)
+                statusColour.setBackground(gradientDrawable);
+            }
+            if (order.getStatus().toString().equals("Pending")) {
+                // Create a GradientDrawable to set the border color and width
+                GradientDrawable gradientDrawable = new GradientDrawable();
+                gradientDrawable.setShape(GradientDrawable.RECTANGLE);
+                gradientDrawable.setStroke(10, Color.parseColor("#FFD7A0")); // Border width and color
+                gradientDrawable.setColor(Color.parseColor("#FFD7A0")); // Background color (set to transparent to show border)
+                statusColour.setBackground(gradientDrawable);
+            }
+            if (order.getStatus().toString().equals("Repairing")) {
+                // Create a GradientDrawable to set the border color and width
+                GradientDrawable gradientDrawable = new GradientDrawable();
+                gradientDrawable.setShape(GradientDrawable.RECTANGLE);
+                gradientDrawable.setStroke(10, Color.parseColor("BDBDBD")); // Border width and color
+                gradientDrawable.setColor(Color.parseColor("#BDBDBD")); // Background color (set to transparent to show border)
+                statusColour.setBackground(gradientDrawable);
+            }
+            if (order.getStatus().toString().equals("Arrange")) {
+                // Create a GradientDrawable to set the border color and width
+                GradientDrawable gradientDrawable = new GradientDrawable();
+                gradientDrawable.setShape(GradientDrawable.RECTANGLE);
+                gradientDrawable.setStroke(10, Color.parseColor("#C2C2F0")); // Border width and color
+                gradientDrawable.setColor(Color.parseColor("#C2C2F0")); // Background color (set to transparent to show border)
+                statusColour.setBackground(gradientDrawable);
+            }
+            if (order.getStatus().toString().equals("Issues")) {
+                // Create a GradientDrawable to set the border color and width
+                GradientDrawable gradientDrawable = new GradientDrawable();
+                gradientDrawable.setShape(GradientDrawable.RECTANGLE);
+                gradientDrawable.setStroke(10, Color.parseColor("#FFC0CB")); // Border width and color
+                gradientDrawable.setColor(Color.parseColor("#FFC0CB")); // Background color (set to transparent to show border)
+                statusColour.setBackground(gradientDrawable);
+            }
+            if (order.getStatus().toString().equals("Completed")) {
+                // Create a GradientDrawable to set the border color and width
+                GradientDrawable gradientDrawable = new GradientDrawable();
+                gradientDrawable.setShape(GradientDrawable.RECTANGLE);
+                gradientDrawable.setStroke(10, Color.parseColor("#90EE90")); // Border width and color
+                gradientDrawable.setColor(Color.parseColor("#90EE90")); // Background color (set to transparent to show border)
+                statusColour.setBackground(gradientDrawable);
+            }
+
 
             retrievedPID.setText(order.getPID());
 

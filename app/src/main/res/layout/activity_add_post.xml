@@ -6,14 +6,17 @@
     android:layout_height="match_parent"
     tools:context=".Add_Order">
 
+
+
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/materialCardView"
         android:layout_width="match_parent"
-        android:layout_height="90dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="700dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         app:strokeWidth="3dp">
 
         <LinearLayout
@@ -125,7 +128,7 @@
         android:layout_height="110dp"
         android:layout_marginStart="13dp"
         android:layout_marginTop="26dp"
-        android:layout_marginEnd="5dp"
+        android:layout_marginEnd="4dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/pick"
         app:layout_constraintTop_toTopOf="parent" />
@@ -136,21 +139,21 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="28dp"
-        android:layout_marginTop="23dp"
+        android:layout_marginTop="21dp"
         android:paddingStart="5dp"
         android:text="Phone Number"
         android:textSize="16sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/totalPhotos" />
+        app:layout_constraintTop_toBottomOf="@+id/recyclerview_gallery_images" />
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/materialCardView3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="28dp"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="185dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ph">
+        app:layout_constraintTop_toTopOf="parent">
 
         <EditText
             android:id="@+id/phoneNumber"
@@ -169,30 +172,30 @@
         android:id="@+id/oh"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="23dp"
-        android:layout_marginEnd="145dp"
+        android:layout_marginTop="21dp"
+        android:layout_marginEnd="146dp"
         android:paddingStart="5dp"
         android:text="PID"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/totalPhotos" />
+        app:layout_constraintTop_toBottomOf="@+id/recyclerview_gallery_images" />
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/materialCardView6"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="185dp"
         android:layout_marginEnd="28dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/oh">
+        app:layout_constraintTop_toTopOf="parent">
 
 
         <TextView
             android:id="@+id/PID"
-            android:gravity="center_vertical"
             android:layout_width="150dp"
             android:layout_height="35dp"
             android:background="#a6a6a6"
+            android:gravity="center_vertical"
             android:paddingStart="10dp"
             android:textSize="12sp"
             tools:layout_editor_absoluteX="151dp"
@@ -207,7 +210,7 @@
         android:layout_width="100dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="28dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="18dp"
         android:paddingStart="5dp"
         android:text="Bicycle"
         android:textSize="16sp"
@@ -218,12 +221,11 @@
         android:id="@+id/materialCardView5"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="28dp"
-        android:layout_marginTop="5dp"
-        android:layout_marginEnd="28dp"
+        android:layout_marginTop="265dp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/b">
+        app:layout_constraintTop_toTopOf="parent">
 
         <EditText
             android:id="@+id/bicycleNumber"
@@ -244,7 +246,7 @@
         android:layout_width="100dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="28dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="10dp"
         android:paddingStart="5dp"
         android:text="De/MU"
         android:textSize="16sp"
@@ -256,9 +258,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="28dp"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="335dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/de">
+        app:layout_constraintTop_toTopOf="parent">
 
         <Spinner
             android:id="@+id/DeliveryPick"
@@ -276,12 +278,12 @@
         android:layout_width="100dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
         android:paddingStart="5dp"
         android:text="Date"
         android:textSize="16sp"
         app:layout_constraintEnd_toStartOf="@+id/t"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/de"
         app:layout_constraintTop_toBottomOf="@+id/materialCardView5" />
 
@@ -289,11 +291,11 @@
         android:id="@+id/materialCardView10"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="335dp"
         app:layout_constraintEnd_toStartOf="@+id/materialCardView9"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/materialCardView7"
-        app:layout_constraintTop_toBottomOf="@+id/da">
+        app:layout_constraintTop_toTopOf="parent">
 
 
         <EditText
@@ -315,22 +317,22 @@
         android:id="@+id/t"
         android:layout_width="100dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="23dp"
         android:paddingStart="5dp"
         android:text="Time"
         android:textSize="16sp"
-        app:layout_constraintStart_toEndOf="@+id/da"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/materialCardView5" />
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/materialCardView9"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="335dp"
         android:layout_marginEnd="28dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/t">
+        app:layout_constraintTop_toTopOf="parent">
 
 
         <EditText
@@ -353,7 +355,7 @@
         android:layout_width="100dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="28dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="18dp"
         android:paddingStart="5dp"
         android:text="Package"
         android:textSize="16sp"
@@ -365,9 +367,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="28dp"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="415dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/p">
+        app:layout_constraintTop_toTopOf="parent">
 
         <Spinner
             android:id="@+id/PackagePick"
@@ -385,7 +387,7 @@
         android:layout_width="100dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="28dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="10dp"
         android:paddingStart="5dp"
         android:text="Mechanic"
         android:textSize="16sp"
@@ -397,9 +399,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="28dp"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="460dp"
+        android:layout_marginBottom="35dp"
+        app:layout_constraintBottom_toTopOf="@+id/submitBtn"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/mech">
+        app:layout_constraintTop_toTopOf="parent">
 
 
         <EditText
@@ -408,10 +412,10 @@
             android:layout_height="35dp"
             android:background="#a6a6a6"
             android:paddingStart="10dp"
+            android:text="Marcus"
             android:textSize="12sp"
             tools:layout_editor_absoluteX="151dp"
-            tools:layout_editor_absoluteY="348dp"
-            android:text="Marcus"/>
+            tools:layout_editor_absoluteY="348dp" />
 
     </com.google.android.material.card.MaterialCardView>
 
@@ -420,22 +424,24 @@
         android:id="@+id/n"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="109dp"
         android:paddingStart="5dp"
         android:text="Additional Notes"
         android:textSize="16sp"
-        app:layout_constraintStart_toEndOf="@+id/p"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/materialCardView10" />
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/m3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="405dp"
         android:layout_marginEnd="28dp"
+        android:layout_marginBottom="30dp"
+        app:layout_constraintBottom_toTopOf="@+id/submitBtn"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/n">
+        app:layout_constraintTop_toTopOf="parent">
 
 
         <EditText
@@ -454,26 +460,29 @@
         android:id="@+id/submitBtn"
         android:layout_width="165dp"
         android:layout_height="46dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="580dp"
+        android:layout_marginBottom="74dp"
         android:backgroundTint="#7FFFD4"
         android:text="Confirm"
         android:textColor="#000000"
         android:textSize="16sp"
+        app:layout_constraintBottom_toTopOf="@+id/materialCardView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/m3" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/OrderID"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="3dp"
+        android:layout_marginTop="2dp"
         android:layout_marginEnd="28dp"
         android:text="BC001"
         android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/materialCardView6" />
+
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

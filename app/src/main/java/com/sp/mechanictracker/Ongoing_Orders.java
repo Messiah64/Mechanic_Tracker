@@ -213,7 +213,7 @@ public class Ongoing_Orders extends AppCompatActivity implements OrderAdapter.On
         // Create a ScrollView and wrap the message inside it
         ScrollView scrollView = new ScrollView(this);
         TextView messageTextView = new TextView(this);
-        messageTextView.setText("Order ID: " + order.getOrderID() + "\nOrder PID: " + order.getPID() + "\nPhone Number: " + order.getPhone() + "\nNotes: " + order.getNotes());
+        messageTextView.setText("Order ID: " + order.getOrderID() + "\n\nNotes: " + order.getNotes());
         // Set padding to provide some space around the text
         int padding = (int) getResources().getDimension(R.dimen.alert_dialog_padding);
         messageTextView.setPadding(padding, padding, padding, padding);
