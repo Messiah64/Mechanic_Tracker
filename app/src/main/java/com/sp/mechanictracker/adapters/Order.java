@@ -1,4 +1,4 @@
-package com.sp.mechanictracker;
+package com.sp.mechanictracker.adapters;
 
 import java.util.List;
 
@@ -112,6 +112,17 @@ public class Order {
     private String Phone;
     private String Status;
     private String Time;
+
+    // Add the new field
+    private String updatedStatus;
+
+    public String getUpdatedStatus() {
+        return updatedStatus;
+    }
+
+    public void setUpdatedStatus(String updatedStatus) {
+        this.updatedStatus = updatedStatus;
+    }
 
 
     @Override

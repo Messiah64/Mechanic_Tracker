@@ -1,25 +1,16 @@
-package com.sp.mechanictracker;
+package com.sp.mechanictracker.screens;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.Manifest;
 import android.app.DatePickerDialog;
-import android.content.DialogInterface;
-import android.content.pm.PackageManager;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -42,10 +33,12 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.sp.mechanictracker.adapters.CustomSpinnerAdapter;
+import com.sp.mechanictracker.R;
+import com.sp.mechanictracker.adapters.RecyclerAdapter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -60,8 +53,8 @@ public class Add_Order extends AppCompatActivity {
     private ImageView repair, add, complete;
     RecyclerView recyclerView;
 
-    private ArrayList<Uri> uriList = new ArrayList<>();
-    public List<String> imageURLs = new ArrayList<>(); // Shit is very important
+    private ArrayList<Uri> uriList = new ArrayList<>(); // Storing for URI of selected image to upload to FireBase Storage
+    public List<String> imageURLs = new ArrayList<>(); // Storing the retrieved URLS of images sent to Firebase Storage
     private FirebaseStorage storage;
     private FirebaseFirestore db;
 
@@ -79,6 +72,8 @@ public class Add_Order extends AppCompatActivity {
     EditText phoneNumber, bicycleDetails, date, time, mechanicName, notes;
 
     TextView PIDNumber;
+
+    private static final int PICK_IMAGE = 100;
     Button submitBtn;
     String spinnerDeliveryModeValue="", spinnerPackageTypeValue="";
     Spinner deliveryMode, packageType;
@@ -155,7 +150,7 @@ public class Add_Order extends AppCompatActivity {
         PackageOptions.add("Premium");
         PackageOptions.add("Safety");
         PackageOptions.add("Rec");
-        PackageOptions.add("Nil");
+        PackageOptions.add("Repair");
         CustomSpinnerAdapter adapterPackagePicker = new CustomSpinnerAdapter(this, android.R.layout.simple_spinner_item, PackageOptions);
         adapterPackagePicker.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         // Apply the adapter to the spinner
@@ -211,20 +206,23 @@ public class Add_Order extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         recyclerView.setAdapter(adapter);
 
+
+        /*
         if (ContextCompat.checkSelfPermission(Add_Order.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(Add_Order.this,
                     new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, Read_Permission);
         }
 
+         */
+
         pick.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent();
-                intent.setType("image/*");
-                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-                startActivityForResult(Intent.createChooser(intent, "Select Pictures"), 1);
+                Intent gallery = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.INTERNAL_CONTENT_URI);
+                startActivityForResult(gallery, PICK_IMAGE);
             }
         });
+
 
     }
 
@@ -241,31 +239,38 @@ public class Add_Order extends AppCompatActivity {
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == 1 && resultCode == Activity.RESULT_OK && data != null) {
-            if (data.getClipData() != null) {
-                int count = data.getClipData().getItemCount();
-                for (int i = 0; i < count; i++) {
-                    uriArrayList.add(data.getClipData().getItemAt(i).getUri());
-                    Uri uri = data.getClipData().getItemAt(i).getUri();
+        if (resultCode == RESULT_OK && requestCode == PICK_IMAGE) {
+
+            try {
+                if (data.getClipData() != null) {
+                    int count = data.getClipData().getItemCount();
+                    for (int i = 0; i < count; i++) {
+                        uriArrayList.add(data.getClipData().getItemAt(i).getUri());
+                        Uri uri = data.getClipData().getItemAt(i).getUri();
+                        uriList.add(uri);
+                        // Upload each image individually
+                        uploadImageToStorage(uri);
+                    }
+
+                    adapter.notifyDataSetChanged();
+                    textView.setText(uriArrayList.size() + " photos selected");
+
+                } else if (data.getData() != null) {
+                    Uri uri = data.getData();
                     uriList.add(uri);
-                    // Upload each image individually
+                    String imageURL = data.getData().getPath();
+                    uriArrayList.add(Uri.parse(imageURL));
+                    // Upload the selected image
                     uploadImageToStorage(uri);
                 }
-
-                adapter.notifyDataSetChanged();
-                textView.setText(uriArrayList.size() + " photos selected");
-
-            } else if (data.getData() != null) {
-                Uri uri = data.getData();
-                uriList.add(uri);
-                String imageURL = data.getData().getPath();
-                uriArrayList.add(Uri.parse(imageURL));
-                // Upload the selected image
-                uploadImageToStorage(uri);
             }
+            catch (Exception e){
+                Log.d("Error", String.valueOf(e));
+            }
+
         }
     }
 

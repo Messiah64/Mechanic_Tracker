@@ -1,4 +1,4 @@
-package com.sp.mechanictracker;
+package com.sp.mechanictracker.screens;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -31,14 +31,14 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.FirebaseStorage;
 
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.FirebaseFirestore;
+import com.sp.mechanictracker.adapters.Order;
+import com.sp.mechanictracker.adapters.OrderAdapter;
+import com.sp.mechanictracker.R;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-public class Ongoing_Orders extends AppCompatActivity implements OrderAdapter.OnInfoOptionClickListener{
+public class Ongoing_Orders extends AppCompatActivity implements OrderAdapter.OnInfoOptionClickListener {
 
     private ImageView repair, add, complete;
     private FirebaseStorage storage;
@@ -112,12 +112,14 @@ public class Ongoing_Orders extends AppCompatActivity implements OrderAdapter.On
                 }
                 // Hardcoded example values
                 List<String> exampleValues = new ArrayList<>();
+                exampleValues.add(" ");
                 exampleValues.add("OTW");
                 exampleValues.add("Pending");
                 exampleValues.add("Repairing");
                 exampleValues.add("Arrange");
                 exampleValues.add("Issues");
                 exampleValues.add("Completed");
+
 
                 populateRecyclerView(ordersList, exampleValues);
 
@@ -152,22 +154,58 @@ public class Ongoing_Orders extends AppCompatActivity implements OrderAdapter.On
         OrderAdapter adapter = new OrderAdapter(ordersList, statusList, recyclerView, new OrderAdapter.OnInfoOptionClickListener() {
             @Override
             public void onInfoOptionClicked(Order order) {
-                // Show popup dialog with order information
                 showInfoPopupDialog(order);
             }
 
             @Override
             public void onDeleteOptionClicked(Order order, int position) {
-                // Delete the order from Firestore and notify adapter
                 deleteOrderFromOrders(order.getOrderID(), position);
             }
-        });
+        }, new OrderAdapter.OnOrderClickListener() {
 
+            @Override
+            public void onOrderClicked(Order order) {
+                // Start the OrderMessages activity
+                Intent intent = new Intent(Ongoing_Orders.this, OrderMessages.class);
+                intent.putExtra("order", order.getOrderID().toString());
+                startActivity(intent);
+            }
+
+        }) {
+            @Override
+            public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+                super.onBindViewHolder(holder, position);
+
+                // Fetch the updated status from Firestore
+                Order currentOrder = ordersList.get(position);
+                if (currentOrder != null) {
+                    String orderID = currentOrder.getOrderID();
+                    db.collection("Orders").document(orderID)
+                            .get()
+                            .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                @Override
+                                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                    if (documentSnapshot.exists()) {
+                                        String updatedStatus = documentSnapshot.getString("Status");
+                                        if (updatedStatus != null) {
+                                            holder.updateStatusUI(updatedStatus);
+                                        }
+                                    }
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.e("Firestore", "Error fetching order status", e);
+                                }
+                            });
+                }
+            }
+        };
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
     }
-
 
     @Override
     public void onInfoOptionClicked(Order order) {

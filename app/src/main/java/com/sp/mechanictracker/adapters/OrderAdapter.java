@@ -1,6 +1,5 @@
 
-package com.sp.mechanictracker;
-import android.app.Notification;
+package com.sp.mechanictracker.adapters;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
@@ -18,7 +17,6 @@ import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -32,17 +30,24 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.RemoteMessage;
+import com.google.gson.Gson;
+import com.sp.mechanictracker.R;
+import com.sp.mechanictracker.screens.Edit_Order;
+import com.sp.mechanictracker.screens.Ongoing_Orders;
+import com.sp.mechanictracker.screens.OrderMessages;
 import com.squareup.picasso.Picasso;
 
-import org.w3c.dom.Text;
-
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> {
+
+    private OnOrderClickListener onOrderClickListener;
 
     private List<Order> ordersList;
     public List<String> statusList;
@@ -53,16 +58,20 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
     private OnInfoOptionClickListener infoOptionClickListener;
 
     // Constructor
-    public OrderAdapter(List<Order> ordersList, List<String> statusList, RecyclerView recyclerView, OnInfoOptionClickListener listener) {
+    public OrderAdapter(List<Order> ordersList, List<String> statusList, RecyclerView recyclerView, OnInfoOptionClickListener infoOptionClickListener, OnOrderClickListener onOrderClickListener) {
         this.ordersList = ordersList;
         this.statusList = statusList;
-        this.recyclerView = recyclerView; // Add this line
-        this.infoOptionClickListener = listener;
+        this.recyclerView = recyclerView;
+        this.infoOptionClickListener = infoOptionClickListener;
+        this.onOrderClickListener = onOrderClickListener;
     }
     // Interface for Info option click listener
     public interface OnInfoOptionClickListener {
         void onInfoOptionClicked(Order order);
         void onDeleteOptionClicked(Order order, int position);
+    }
+    public interface OnOrderClickListener {
+        void onOrderClicked(Order order);
     }
 
     @NonNull
@@ -74,8 +83,13 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Order order = ordersList.get(position);
-        holder.bind(order);
+        try {
+            Order currentOrder = ordersList.get(position);
+            holder.bind(currentOrder);
+        } catch (NullPointerException e) {
+            // Handle the null Order object here
+            Log.e("OrderAdapter", "Null Order object at position: " + position);
+        }
     }
 
     @Override
@@ -83,7 +97,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
         return ordersList.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
 
         private ImageView firstImage;
@@ -99,15 +113,32 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
         private TextView status;
         private CardView statusColour;
         private ImageButton imageButtonMenu;
+        private TextView bicycleDetails;
 
-
+        String Prev_status = " ";
 
 
         public ViewHolder(@NonNull View itemView) {
+
+
+
             super(itemView);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(itemView.getContext(), OrderMessages.class);
+                    intent.putExtra("orderID", retrievedOrderID.getText().toString());
+                    itemView.getContext().startActivity(intent);
+                }
+            });
+
             firstImage = itemView.findViewById(R.id.firstImage);
             retrievedPID = itemView.findViewById(R.id.retrievedPID);
             retrievedPhoneNumber = itemView.findViewById(R.id.retrievedPhoneNumber);
+
+            bicycleDetails = itemView.findViewById(R.id.retrievedBicycleDetails);
+
 
             imageButtonMenu = itemView.findViewById(R.id.imageButtonMenu);
             imageButtonMenu.setOnClickListener(new View.OnClickListener() {
@@ -118,78 +149,75 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
             });
 
 
-
-
-
             status = itemView.findViewById(R.id.StatusText);
             status.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    refreshScreen();
+
                 }
             });
             statusColour = itemView.findViewById(R.id.StatusCard);
 
+            Prev_status = status.getText().toString();
+
+
             // Injected Logic, into class LMAO
             retrievedStatus = itemView.findViewById(R.id.retrievedStatus);
 
-            // Define the confirmation dialog outside of the listener
             final AlertDialog.Builder builder = new AlertDialog.Builder(itemView.getContext());
             builder.setMessage("Are you sure you want to proceed?")
-                    .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            String orderID = retrievedOrderID.getText().toString();
-                            updateStatusForCompletedOnly(orderID, "Completed");
-                            Log.d("STATUS CHANGED", "Completed");
-                        }
-                    })
+                    .setPositiveButton("Confirm", null) // Set the positive button click listener to null initially
                     .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
-                            // Do nothing, user cancelled
+                            // User Cancelled
+                            String orderID = retrievedOrderID.getText().toString();
+                            updateStatus(orderID, Prev_status);
+                            Prev_status = "";
                         }
                     });
 
             final AlertDialog alertDialog = builder.create();
+
+// Set the positive button click listener after creating the dialog
+            alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, "Confirm", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    String orderID = retrievedOrderID.getText().toString();
+                    updateStatusForCompletedOnly(orderID, "Completed");
+                    Log.d("STATUS CHANGED", "Completed");
+                }
+            });
+
             retrievedStatus.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
+
                 @Override
                 public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
                     String selectedStatus = statusList.get(position);
                     if ("Completed".equals(selectedStatus)) {
                         alertDialog.show(); // Show the dialog when "Completed" is selected
                     }
-
-                    if ("Issues".equals(selectedStatus)) {
+                    if (" ".equals(selectedStatus)) {
+                        // Do nothing
+                    } else {
                         String orderID = retrievedOrderID.getText().toString();
                         updateStatus(orderID, selectedStatus);
-                        notifyDataSetChanged();
-                        Log.d("STATUS CHANGED", selectedStatus);
 
-                    } if ("Arrange".equals(selectedStatus)) {
-                        String orderID = retrievedOrderID.getText().toString();
-                        updateStatus(orderID, selectedStatus);
-                        Log.d("STATUS CHANGED", selectedStatus);
-
-                    } if ("Repairing".equals(selectedStatus)) {
-                        String orderID = retrievedOrderID.getText().toString();
-                        updateStatus(orderID, selectedStatus);
-                        Log.d("STATUS CHANGED", selectedStatus);
-
-                    } if ("Pending".equals(selectedStatus)) {
-                        String orderID = retrievedOrderID.getText().toString();
-                        updateStatus(orderID, selectedStatus);
-                        Log.d("STATUS CHANGED", selectedStatus);
+                        // Find the ViewHolder instance for the updated order and update the UI
+                        int orderPosition = getAdapterPosition();
+                        if (orderPosition != RecyclerView.NO_POSITION) {
+                            OrderAdapter.ViewHolder viewHolder = (OrderAdapter.ViewHolder) recyclerView.findViewHolderForAdapterPosition(orderPosition);
+                            if (viewHolder != null) {
+                                viewHolder.updateStatusUI(selectedStatus);
+                            }
+                        }
                     }
-
-
                 }
-
 
                 @Override
                 public void onNothingSelected(AdapterView<?> adapterView) {
                     // Do nothing
                 }
-
-
             });
 
 
@@ -207,6 +235,125 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
             retrievedStatus.setAdapter(statusAdapter);
         }
 
+
+        public void updateStatusUI(String newStatus) {
+            status.setText(newStatus);
+
+            Order currentOrder = ordersList.get(getAdapterPosition());
+            currentOrder.setStatus(newStatus);
+
+            /*
+
+            if (order.getStatus().toString().equals("OTW")) {
+                // Create a GradientDrawable to set the border color and width
+                GradientDrawable gradientDrawable1 = new GradientDrawable();
+                gradientDrawable1.setShape(GradientDrawable.RECTANGLE);
+                gradientDrawable1.setStroke(10, Color.parseColor("#FFFFA0")); // Border width and color
+                gradientDrawable1.setColor(Color.parseColor("#FFFFA0")); // Background color (set to transparent to show border)
+                statusColour.setBackground(gradientDrawable1);
+                statusColour.invalidate();
+            }
+            if (order.getStatus().toString().equals("Pending")) {
+                // Create a GradientDrawable to set the border color and width
+                GradientDrawable gradientDrawable2 = new GradientDrawable();
+                gradientDrawable2.setShape(GradientDrawable.RECTANGLE);
+                gradientDrawable2.setStroke(10, Color.parseColor("#FFD7A0")); // Border width and color
+                gradientDrawable2.setColor(Color.parseColor("#FFD7A0")); // Background color (set to transparent to show border)
+                statusColour.setBackground(gradientDrawable2);
+                statusColour.invalidate();
+            }
+            if (order.getStatus().toString().equals("Repairing")) {
+                // Create a GradientDrawable to set the border color and width
+                GradientDrawable gradientDrawable3 = new GradientDrawable();
+                gradientDrawable3.setShape(GradientDrawable.RECTANGLE);
+                gradientDrawable3.setStroke(10, Color.parseColor("#D6B4FC")); // Border width and color
+                gradientDrawable3.setColor(Color.parseColor("#D6B4FC")); // Background color (set to transparent to show border)
+                statusColour.setBackground(gradientDrawable3);
+                statusColour.invalidate();
+            }
+            if (order.getStatus().toString().equals("Arrange")) {
+                // Create a GradientDrawable to set the border color and width
+
+                GradientDrawable gradientDrawable = new GradientDrawable();
+                gradientDrawable.setShape(GradientDrawable.RECTANGLE);
+                gradientDrawable.setStroke(10, Color.parseColor("#83f28f")); // Border width and color
+                gradientDrawable.setColor(Color.parseColor("#83f28f")); // Background color (set to transparent to show border)
+                statusColour.setBackground(gradientDrawable);
+                statusColour.invalidate();
+            }
+            if (order.getStatus().toString().equals("Issues")) {
+                // Create a GradientDrawable to set the border color and width
+                GradientDrawable gradientDrawable = new GradientDrawable();
+                gradientDrawable.setShape(GradientDrawable.RECTANGLE);
+                gradientDrawable.setStroke(10, Color.parseColor("#FFC0CB")); // Border width and color  FFC0CB
+                gradientDrawable.setColor(Color.parseColor("#FFC0CB")); // Background color (set to transparent to show border)
+                statusColour.setBackground(gradientDrawable);
+                statusColour.invalidate();
+            }
+            if (order.getStatus().toString().equals("Completed")) {
+                // Create a GradientDrawable to set the border color and width
+                GradientDrawable gradientDrawable = new GradientDrawable();
+                gradientDrawable.setShape(GradientDrawable.RECTANGLE);
+                gradientDrawable.setStroke(10, Color.parseColor("#90EE90")); // Border width and color  90EE90
+                gradientDrawable.setColor(Color.parseColor("#90EE90")); // Background color (set to transparent to show border)
+                statusColour.setBackground(gradientDrawable);
+                statusColour.invalidate();
+            }
+            if (order.getStatus().toString().equals(null)) {
+                // do nothing
+            }
+             */
+
+            if (newStatus.equals("OTW")) {
+                // Create a GradientDrawable to set the border color and width
+                GradientDrawable gradientDrawable = new GradientDrawable();
+                gradientDrawable.setShape(GradientDrawable.RECTANGLE);
+                gradientDrawable.setStroke(10, Color.parseColor("#FFFFA0")); // Border width and color
+                gradientDrawable.setColor(Color.parseColor("#FFFFA0")); // Background color (set to transparent to show border)
+                statusColour.setBackground(gradientDrawable);
+            }
+            if (newStatus.equals("Pending")) {
+                // Create a GradientDrawable to set the border color and width
+                GradientDrawable gradientDrawable = new GradientDrawable();
+                gradientDrawable.setShape(GradientDrawable.RECTANGLE);
+                gradientDrawable.setStroke(10, Color.parseColor("#FFD7A0")); // Border width and color
+                gradientDrawable.setColor(Color.parseColor("#FFD7A0")); // Background color (set to transparent to show border)
+                statusColour.setBackground(gradientDrawable);
+            }
+            if (newStatus.equals("Repairing")) {
+                // Create a GradientDrawable to set the border color and width
+                GradientDrawable gradientDrawable = new GradientDrawable();
+                gradientDrawable.setShape(GradientDrawable.RECTANGLE);
+                gradientDrawable.setStroke(10, Color.parseColor("#BDBDBD")); // Border width and color
+                gradientDrawable.setColor(Color.parseColor("#BDBDBD")); // Background color (set to transparent to show border)
+                statusColour.setBackground(gradientDrawable);
+            }
+            if (newStatus.equals("Arrange")) {
+                // Create a GradientDrawable to set the border color and width
+                GradientDrawable gradientDrawable = new GradientDrawable();
+                gradientDrawable.setShape(GradientDrawable.RECTANGLE);
+                gradientDrawable.setStroke(10, Color.parseColor("#C2C2F0")); // Border width and color
+                gradientDrawable.setColor(Color.parseColor("#C2C2F0")); // Background color (set to transparent to show border)
+                statusColour.setBackground(gradientDrawable);
+            }
+            if (newStatus.equals("Issues")) {
+                // Create a GradientDrawable to set the border color and width
+                GradientDrawable gradientDrawable = new GradientDrawable();
+                gradientDrawable.setShape(GradientDrawable.RECTANGLE);
+                gradientDrawable.setStroke(10, Color.parseColor("#FFC0CB")); // Border width and color
+                gradientDrawable.setColor(Color.parseColor("#FFC0CB")); // Background color (set to transparent to show border)
+                statusColour.setBackground(gradientDrawable);
+            }
+            if (newStatus.equals("Completed")) {
+                // Create a GradientDrawable to set the border color and width
+                GradientDrawable gradientDrawable = new GradientDrawable();
+                gradientDrawable.setShape(GradientDrawable.RECTANGLE);
+                gradientDrawable.setStroke(10, Color.parseColor("#90EE90")); // Border width and color
+                gradientDrawable.setColor(Color.parseColor("#90EE90")); // Background color (set to transparent to show border)
+                statusColour.setBackground(gradientDrawable);
+            }
+        }
+
         public void menuButtons(View v, Order order) {
             if (v.getId() == R.id.imageButtonMenu) {
                 // Show popup menu
@@ -219,7 +366,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
                     if (itemId == R.id.edit_option) {
                         Log.d("Menu", "Edit Option");
                         // Handle edit option
-                        editOrder(order);
+                        // editOrder(order);
                     } else if (itemId == R.id.delete_option) {
                         Log.d("Menu", "Delete Option");
                         // Handle delete option
@@ -243,12 +390,6 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
         }
 
 
-
-        private void refreshScreen() {
-            Intent intent = new Intent(itemView.getContext(), Ongoing_Orders.class);
-            itemView.getContext().startActivity(intent);
-        }
-
         private void editOrder(Order order) {
             Intent intent = new Intent(itemView.getContext(), Edit_Order.class);
             intent.putExtra("phone", order.getPhone());
@@ -264,6 +405,10 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
             intent.putExtra("orderID", order.getOrderID());
             intent.putExtra("status", order.getStatus());
 
+            // Image Data URLS
+            Gson gson = new Gson();
+            String jsonString = gson.toJson(order.getImages());
+            intent.putExtra("images", jsonString);
             itemView.getContext().startActivity(intent);
         }
 
@@ -327,7 +472,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
 
             // Update the "Status" field to "Completed"
             completedOrderRef
-                    .update("status", "Completed")
+                    .update("Status", "Completed")
                     .addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
@@ -345,8 +490,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
                     });
         }
 
-        private void updateStatus(String orderID, String newStatus) {
-            // Get instance of Firebase Firestore
+        private void updateStatusForOTW(String orderID, String newStatus) {
             FirebaseFirestore db = FirebaseFirestore.getInstance();
 
             // Reference to the document in the "Orders" collection
@@ -362,6 +506,51 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
                         @Override
                         public void onSuccess(Void aVoid) {
                             Log.d("TAG", "Document status updated successfully");
+
+                            // Update the Order object in the ordersList
+                            int orderPosition = getAdapterPosition();
+                            if (orderPosition != RecyclerView.NO_POSITION) {
+                                Order order = ordersList.get(orderPosition);
+                                order.setStatus(newStatus); // Update the status in the Order object
+
+                                // Notify the adapter about the data change
+                                notifyItemChanged(orderPosition);
+                            }
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.e("TAG", "Error updating document status", e);
+                        }
+                    });
+        }
+
+        private void updateStatus(String orderID, String newStatus) {
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            // Reference to the document in the "Orders" collection
+            DocumentReference orderRef = db.collection("Orders").document(orderID);
+
+            // Create a map with the updated status field
+            Map<String, Object> updates = new HashMap<>();
+            updates.put("Status", newStatus);
+
+            // Update the document with the new status field
+            orderRef.update(updates)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.d("TAG", "Document status updated successfully");
+
+                            // Update the Order object in the ordersList
+                            int orderPosition = getAdapterPosition();
+                            if (orderPosition != RecyclerView.NO_POSITION) {
+                                Order order = ordersList.get(orderPosition);
+                                order.setStatus(newStatus); // Update the status in the Order object
+
+                                // Notify the adapter about the data change
+                                notifyItemChanged(orderPosition);
+                            }
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
@@ -371,6 +560,12 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
                         }
                     });
 
+
+        }
+
+        private void refreshScreen() {
+            Intent intent = new Intent(itemView.getContext(), Ongoing_Orders.class);
+            itemView.getContext().startActivity(intent);
         }
 
         private void sendOrderToCompleted(String orderID) {
@@ -390,6 +585,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
                                     Log.d("OrderAdapter", "Order sent to Completed collection");
                                     // Optionally, you can remove the order from the RecyclerView
                                     deleteOrderFromOrders(orderID);
+                                    refreshScreen();
                                 }
                             })
                             .addOnFailureListener(new OnFailureListener() {
@@ -402,8 +598,6 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
                 }
             }
         }
-
-
 
 
         private void deleteOrderFromOrders(String orderID) {
@@ -443,55 +637,73 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
                 firstImage.setImageResource(R.drawable.nopictures);
             }
 
+            if (order.getUpdatedStatus() != null) {
+                status.setText(order.getUpdatedStatus());
+            } else {
+                status.setText(order.getStatus());
+            }
+
+            bicycleDetails.setText(order.getBicycleDetails());
+
             status.setText(order.getStatus());
 
             if (order.getStatus().toString().equals("OTW")) {
                 // Create a GradientDrawable to set the border color and width
-                GradientDrawable gradientDrawable = new GradientDrawable();
-                gradientDrawable.setShape(GradientDrawable.RECTANGLE);
-                gradientDrawable.setStroke(10, Color.parseColor("#FFFFA0")); // Border width and color
-                gradientDrawable.setColor(Color.parseColor("#FFFFA0")); // Background color (set to transparent to show border)
-                statusColour.setBackground(gradientDrawable);
+                GradientDrawable gradientDrawable1 = new GradientDrawable();
+                gradientDrawable1.setShape(GradientDrawable.RECTANGLE);
+                gradientDrawable1.setStroke(10, Color.parseColor("#FFFFA0")); // Border width and color
+                gradientDrawable1.setColor(Color.parseColor("#FFFFA0")); // Background color (set to transparent to show border)
+                statusColour.setBackground(gradientDrawable1);
+                statusColour.invalidate();
             }
             if (order.getStatus().toString().equals("Pending")) {
                 // Create a GradientDrawable to set the border color and width
-                GradientDrawable gradientDrawable = new GradientDrawable();
-                gradientDrawable.setShape(GradientDrawable.RECTANGLE);
-                gradientDrawable.setStroke(10, Color.parseColor("#FFD7A0")); // Border width and color
-                gradientDrawable.setColor(Color.parseColor("#FFD7A0")); // Background color (set to transparent to show border)
-                statusColour.setBackground(gradientDrawable);
+                GradientDrawable gradientDrawable2 = new GradientDrawable();
+                gradientDrawable2.setShape(GradientDrawable.RECTANGLE);
+                gradientDrawable2.setStroke(10, Color.parseColor("#FFD7A0")); // Border width and color
+                gradientDrawable2.setColor(Color.parseColor("#FFD7A0")); // Background color (set to transparent to show border)
+                statusColour.setBackground(gradientDrawable2);
+                statusColour.invalidate();
             }
             if (order.getStatus().toString().equals("Repairing")) {
                 // Create a GradientDrawable to set the border color and width
-                GradientDrawable gradientDrawable = new GradientDrawable();
-                gradientDrawable.setShape(GradientDrawable.RECTANGLE);
-                gradientDrawable.setStroke(10, Color.parseColor("BDBDBD")); // Border width and color
-                gradientDrawable.setColor(Color.parseColor("#BDBDBD")); // Background color (set to transparent to show border)
-                statusColour.setBackground(gradientDrawable);
+                GradientDrawable gradientDrawable3 = new GradientDrawable();
+                gradientDrawable3.setShape(GradientDrawable.RECTANGLE);
+                gradientDrawable3.setStroke(10, Color.parseColor("#D6B4FC")); // Border width and color
+                gradientDrawable3.setColor(Color.parseColor("#D6B4FC")); // Background color (set to transparent to show border)
+                statusColour.setBackground(gradientDrawable3);
+                statusColour.invalidate();
             }
             if (order.getStatus().toString().equals("Arrange")) {
                 // Create a GradientDrawable to set the border color and width
+
                 GradientDrawable gradientDrawable = new GradientDrawable();
                 gradientDrawable.setShape(GradientDrawable.RECTANGLE);
-                gradientDrawable.setStroke(10, Color.parseColor("#C2C2F0")); // Border width and color
-                gradientDrawable.setColor(Color.parseColor("#C2C2F0")); // Background color (set to transparent to show border)
+                gradientDrawable.setStroke(10, Color.parseColor("#83f28f")); // Border width and color
+                gradientDrawable.setColor(Color.parseColor("#83f28f")); // Background color (set to transparent to show border)
                 statusColour.setBackground(gradientDrawable);
+                statusColour.invalidate();
             }
             if (order.getStatus().toString().equals("Issues")) {
                 // Create a GradientDrawable to set the border color and width
                 GradientDrawable gradientDrawable = new GradientDrawable();
                 gradientDrawable.setShape(GradientDrawable.RECTANGLE);
-                gradientDrawable.setStroke(10, Color.parseColor("#FFC0CB")); // Border width and color
+                gradientDrawable.setStroke(10, Color.parseColor("#FFC0CB")); // Border width and color  FFC0CB
                 gradientDrawable.setColor(Color.parseColor("#FFC0CB")); // Background color (set to transparent to show border)
                 statusColour.setBackground(gradientDrawable);
+                statusColour.invalidate();
             }
             if (order.getStatus().toString().equals("Completed")) {
                 // Create a GradientDrawable to set the border color and width
                 GradientDrawable gradientDrawable = new GradientDrawable();
                 gradientDrawable.setShape(GradientDrawable.RECTANGLE);
-                gradientDrawable.setStroke(10, Color.parseColor("#90EE90")); // Border width and color
+                gradientDrawable.setStroke(10, Color.parseColor("#90EE90")); // Border width and color  90EE90
                 gradientDrawable.setColor(Color.parseColor("#90EE90")); // Background color (set to transparent to show border)
                 statusColour.setBackground(gradientDrawable);
+                statusColour.invalidate();
+            }
+            if (order.getStatus().toString().equals(null)) {
+                // do nothing
             }
 
 
@@ -504,7 +716,18 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
             retrievedOrderID.setText(order.getOrderID());
 
             // Set retrievedDate
-            retrievedDate.setText(order.getDate());
+            try {
+                SimpleDateFormat inputFormat = new SimpleDateFormat("dd.MM.yy", Locale.getDefault());
+                Date date = inputFormat.parse((order.getDate()));
+
+                SimpleDateFormat outputFormat = new SimpleDateFormat("dd MMM", Locale.getDefault());
+                String outputDate = outputFormat.format(date).toUpperCase(); // Convert month to uppercase
+                retrievedDate.setText(outputDate);
+
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
 
             // Set retrievedTime
             retrievedTime.setText(order.getTime());
@@ -545,6 +768,17 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
             if (isFirstItem) {
                 retrievedStatus.setSelection(statusList.indexOf(order.getStatus()));
                 isFirstItem = false;
+            }
+        }
+
+        @Override
+        public void onClick(View v) {
+            if (onOrderClickListener != null) {
+                int position = getAdapterPosition();
+                if (position != RecyclerView.NO_POSITION) {
+                    Order order = ordersList.get(position);
+                    onOrderClickListener.onOrderClicked(order);
+                }
             }
         }
     }

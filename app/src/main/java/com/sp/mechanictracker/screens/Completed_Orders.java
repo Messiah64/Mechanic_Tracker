@@ -1,4 +1,4 @@
-package com.sp.mechanictracker;
+package com.sp.mechanictracker.screens;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -20,6 +20,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
+import com.sp.mechanictracker.adapters.Order;
+import com.sp.mechanictracker.adapters.OrderAdapter;
+import com.sp.mechanictracker.R;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -30,7 +33,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
-public class Completed_Orders extends AppCompatActivity implements OrderAdapter.OnInfoOptionClickListener{
+public class Completed_Orders extends AppCompatActivity implements OrderAdapter.OnInfoOptionClickListener {
 
     private ImageView repair, add, complete;
     private FirebaseStorage storage;
@@ -67,6 +70,7 @@ public class Completed_Orders extends AppCompatActivity implements OrderAdapter.
                 startActivity(intent);
             }
         });
+
         // Bottom Nav Bar Ends
 
         fetchOrdersFromFirestore();
@@ -113,7 +117,7 @@ public class Completed_Orders extends AppCompatActivity implements OrderAdapter.
                 try {
                     Date date1 = dateFormat.parse(order1.getDate());
                     Date date2 = dateFormat.parse(order2.getDate());
-                    return date1.compareTo(date2);
+                    return date2.compareTo(date1);
                 } catch (ParseException e) {
                     e.printStackTrace();
                     return 0;
@@ -122,18 +126,27 @@ public class Completed_Orders extends AppCompatActivity implements OrderAdapter.
         });
 
         // Create and set adapter with info option click listener
+        // Create and set adapter with info option click listener
         OrderAdapter adapter = new OrderAdapter(ordersList, statusList, recyclerView, new OrderAdapter.OnInfoOptionClickListener() {
             @Override
             public void onInfoOptionClicked(Order order) {
-                // Show popup dialog with order information
                 showInfoPopupDialog(order);
             }
 
             @Override
             public void onDeleteOptionClicked(Order order, int position) {
-                // Delete the order from Firestore and notify adapter
                 deleteOrderFromOrders(order.getOrderID(), position);
             }
+        }, new OrderAdapter.OnOrderClickListener() {
+
+            @Override
+            public void onOrderClicked(Order order) {
+                // Start the OrderMessages activity
+                Intent intent = new Intent(Completed_Orders.this, OrderMessages.class);
+                intent.putExtra("order", order.getOrderID().toString());
+                startActivity(intent);
+            }
+
         });
         
         

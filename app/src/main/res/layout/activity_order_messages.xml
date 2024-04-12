@@ -4,30 +4,99 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:clipChildren="false"
-    tools:context=".screens.Ongoing_Orders">
+    tools:context=".screens.OrderMessages">
 
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
-        android:layout_width="390dp"
-        android:layout_height="690dp"
-        android:clipChildren="false"
-        app:layout_constraintBottom_toTopOf="@+id/materialCardView2"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.5" />
-
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/materialCardView2"
-        android:layout_width="match_parent"
-        android:layout_height="90dp"
+    <ListView
+        android:id="@+id/messagelistView"
+        android:layout_width="391dp"
+        android:layout_height="624dp"
+        android:layout_marginBottom="200dp"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="5dp"
+        android:padding="10dp"
+        android:stackFromBottom="true"
+        android:transcriptMode="alwaysScroll"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/messageCardView"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginHorizontal="5dp"
+        android:layout_marginBottom="150dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/messageuploadButton"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true"
+                android:layout_gravity="center"
+                android:layout_marginStart="5dp"
+                android:background="@drawable/addpicmsg" />
+
+            <EditText
+                android:id="@+id/messageEditText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_above="@+id/messageuploadButton"
+                android:layout_weight="1"
+                android:background="#FFFFFFFF"
+                android:hint="Type a message..."
+                android:inputType="text"
+                android:paddingHorizontal="10dp" />
+
+            <Button
+                android:id="@+id/messagesendButton"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_above="@+id/messagesendButton"
+                android:layout_gravity="center"
+                android:layout_marginEnd="5dp"
+                android:background="@drawable/sendmsg"
+                tools:layout_editor_absoluteX="347dp"
+                tools:layout_editor_absoluteY="625dp" />
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <ImageView
+        android:id="@+id/messageimageView"
+        android:layout_width="350dp"
+        android:layout_height="200dp"
+        android:layout_marginTop="250dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/messagelistView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/materialCardViewmessage"
+        android:layout_width="match_parent"
+        android:layout_height="90dp"
+        android:layout_marginTop="60dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/messageCardView"
         app:strokeWidth="3dp">
 
         <LinearLayout
@@ -42,7 +111,7 @@
                 android:orientation="vertical">
 
                 <ImageView
-                    android:id="@+id/home_repair"
+                    android:id="@+id/home_repair_messages"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:layout_weight="1"
@@ -65,7 +134,7 @@
                 android:orientation="vertical">
 
                 <ImageView
-                    android:id="@+id/home_add"
+                    android:id="@+id/home_add_messages"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:layout_weight="1"
@@ -88,7 +157,7 @@
                 android:orientation="vertical">
 
                 <ImageView
-                    android:id="@+id/home_complete"
+                    android:id="@+id/home_complete_messages"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:layout_weight="1"

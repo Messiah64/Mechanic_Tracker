@@ -1,4 +1,4 @@
-package com.sp.mechanictracker;
+package com.sp.mechanictracker.adapters;
 
 import android.net.Uri;
 import android.view.LayoutInflater;
@@ -8,6 +8,8 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.sp.mechanictracker.R;
 
 import java.util.ArrayList;
 

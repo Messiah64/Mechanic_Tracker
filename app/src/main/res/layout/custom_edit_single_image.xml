@@ -16,13 +16,20 @@
         android:layout_height="100dp">
 
         <ImageView
-            android:id="@+id/image"
+            android:id="@+id/imageToEdit"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
             app:layout_constraintDimensionRatio="1"
             tools:ignore="MissingConstraints"  />
 
+        <ImageView
+            android:id="@+id/delete"
+            android:layout_width="17dp"
+            android:layout_marginStart="82dp"
+            android:layout_marginTop="2dp"
+            android:layout_height="17dp"
+            android:src="@drawable/remove" />
 
     </com.google.android.material.card.MaterialCardView>
 
