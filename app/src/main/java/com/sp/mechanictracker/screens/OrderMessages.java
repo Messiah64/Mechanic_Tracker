@@ -50,6 +50,8 @@ public class OrderMessages extends AppCompatActivity {
     private Uri selectedImageUri;
     private String uploadedImageUrl;
 
+    String orderID = "";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,25 +84,45 @@ public class OrderMessages extends AppCompatActivity {
             }
         });
 
-        // Listen for new messages and images
-        db.collection("messages")
-                .orderBy("timestamp", Query.Direction.ASCENDING)
-                .addSnapshotListener((queryDocumentSnapshots, e) -> {
-                    if (e != null) {
-                        return;
-                    }
+        // Hashmap for user ID -> User Name
+        HashMap<String, String> userName = new HashMap<String, String>();
+        userName.put("F1PbksAPpSSL0sYPudUodBtjKrg2", "Marcus");
+        userName.put("cEAJNeJSfRge0GJHw8OfDCCsKVi2", "Handsome");
+        userName.put("ZgMy8asuvUewqi06JjG3JFL18Dx2", "Matha");
+        userName.put("kysEJbgwAuZhAe0LZK3cCDLQVn42", "Bob");
 
-                    messages.clear();
-                    imageUrls.clear();
-                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                        String sender = document.getString("sender");
-                        String text = document.getString("text");
-                        String imageUrl = document.getString("imageUrl");
-                        messages.add(sender + ": " + text);
-                        imageUrls.add(imageUrl);
-                    }
-                    messageAdapter.notifyDataSetChanged();
-                });
+        // Get OrderID
+        Intent intent = getIntent();
+
+        if (intent.hasExtra("orderID")){
+            orderID = intent.getStringExtra("orderID");
+
+            // Listen for new messages and images
+            db.collection("messages")
+                    .document(orderID)
+                    .collection("messages")
+                    .orderBy("timestamp", Query.Direction.ASCENDING)
+                    .addSnapshotListener((queryDocumentSnapshots, e) -> {
+                        if (e != null) {
+                            return;
+                        }
+
+                        messages.clear();
+                        imageUrls.clear();
+                        for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                            String sender = document.getString("sender");
+                            // inject user name from UUID
+                            sender = userName.get(sender);
+                            String text = document.getString("text");
+                            String imageUrl = document.getString("imageUrl");
+                            messages.add(sender + ": " + text);
+                            imageUrls.add(imageUrl);
+                        }
+                        messageAdapter.notifyDataSetChanged();
+                    });
+        }
+
+
     }
 
     private void sendMessage() {
@@ -113,6 +135,8 @@ public class OrderMessages extends AppCompatActivity {
             message.put("imageUrl", uploadedImageUrl != null ? uploadedImageUrl : "");
 
             db.collection("messages")
+                    .document(orderID)
+                    .collection("messages")
                     .add(message)
                     .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                         @Override
