@@ -39,6 +39,8 @@ import com.squareup.picasso.Picasso;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -61,7 +63,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
     public OrderAdapter(List<Order> ordersList, List<String> statusList, RecyclerView recyclerView, OnInfoOptionClickListener infoOptionClickListener, OnOrderClickListener onOrderClickListener) {
         this.ordersList = ordersList;
         this.statusList = statusList;
-        this.recyclerView = recyclerView;
+        this.recyclerView = recyclerView; // Get the RecyclerView instance
         this.infoOptionClickListener = infoOptionClickListener;
         this.onOrderClickListener = onOrderClickListener;
     }
@@ -81,14 +83,42 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
         return new ViewHolder(view);
     }
 
+
+    private String previousMonth = ""; // Declare the previousMonth variable
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         try {
             Order currentOrder = ordersList.get(position);
+
+            // Get the current month from the order date
+            SimpleDateFormat inputFormat = new SimpleDateFormat("dd.MM.yy", Locale.getDefault());
+            Date date = inputFormat.parse(currentOrder.getDate());
+            SimpleDateFormat outputFormat = new SimpleDateFormat("MMM", Locale.getDefault());
+            String currentMonth = outputFormat.format(date).toUpperCase();
+
+            // If the current month is different from the previous month
+            if (!currentMonth.equals(previousMonth)) {
+                // Inflate the month_label.xml layout
+                View monthLabelView = LayoutInflater.from(holder.itemView.getContext()).inflate(R.layout.month_list, (ViewGroup) holder.itemView.getRootView(), false);
+
+                // Get the TextView from the inflated layout
+                TextView monthLabel = monthLabelView.findViewById(R.id.month_label);
+                monthLabel.setText(currentMonth);
+
+                // Add the month label to the RecyclerView's parent ViewGroup
+                ViewGroup parent = (ViewGroup) recyclerView.getParent();
+                if (parent != null) {
+                    parent.addView(monthLabelView);
+                }
+
+                // Update the previousMonth variable
+                previousMonth = currentMonth;
+            }
+
             holder.bind(currentOrder);
-        } catch (NullPointerException e) {
-            // Handle the null Order object here
-            Log.e("OrderAdapter", "Null Order object at position: " + position);
+        } catch (NullPointerException | ParseException e) {
+            // Handle the null Order object or parsing exception here
+            Log.e("OrderAdapter", "Error binding order", e);
         }
     }
 
@@ -123,6 +153,23 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
 
 
             super(itemView);
+
+            Collections.sort(ordersList, new Comparator<Order>() {
+                @Override
+                public int compare(Order order1, Order order2) {
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yy", Locale.getDefault());
+
+                    try {
+                        Date date1 = dateFormat.parse(order1.getDate());
+                        Date date2 = dateFormat.parse(order2.getDate());
+                        return date2.compareTo(date1); // Descending order
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+
+                    return 0; // If dates are the same, keep the original order
+                }
+            });
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
