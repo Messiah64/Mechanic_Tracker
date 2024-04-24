@@ -37,6 +37,7 @@ import com.sp.mechanictracker.R;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class Ongoing_Orders extends AppCompatActivity implements OrderAdapter.OnInfoOptionClickListener {
 
@@ -188,7 +189,7 @@ public class Ongoing_Orders extends AppCompatActivity implements OrderAdapter.On
                                     if (documentSnapshot.exists()) {
                                         String updatedStatus = documentSnapshot.getString("Status");
                                         if (updatedStatus != null) {
-                                            holder.updateStatusUI(updatedStatus);
+                                             //holder.updateStatusUI(updatedStatus);
                                         }
                                     }
                                 }
@@ -241,6 +242,20 @@ public class Ongoing_Orders extends AppCompatActivity implements OrderAdapter.On
                     }
                 });
     }
+
+    public String getFormattedDate() {
+        // Get today's date
+        Date today = new Date();
+
+        // Define the format
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM", Locale.ENGLISH);
+
+        // Format the date
+        String formattedDate = dateFormat.format(today);
+
+        return formattedDate.toUpperCase(); // Convert to uppercase as per your example
+    }
+
 
 
 

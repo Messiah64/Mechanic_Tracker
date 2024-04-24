@@ -208,7 +208,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
                         if (orderPosition != RecyclerView.NO_POSITION) {
                             OrderAdapter.ViewHolder viewHolder = (OrderAdapter.ViewHolder) recyclerView.findViewHolderForAdapterPosition(orderPosition);
                             if (viewHolder != null) {
-                                viewHolder.updateStatusUI(selectedStatus);
+                                // viewHolder.updateStatusUI(selectedStatus);
                             }
                         }
                     }
@@ -236,123 +236,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
         }
 
 
-        public void updateStatusUI(String newStatus) {
-            status.setText(newStatus);
 
-            Order currentOrder = ordersList.get(getAdapterPosition());
-            currentOrder.setStatus(newStatus);
-
-            /*
-
-            if (order.getStatus().toString().equals("OTW")) {
-                // Create a GradientDrawable to set the border color and width
-                GradientDrawable gradientDrawable1 = new GradientDrawable();
-                gradientDrawable1.setShape(GradientDrawable.RECTANGLE);
-                gradientDrawable1.setStroke(10, Color.parseColor("#FFFFA0")); // Border width and color
-                gradientDrawable1.setColor(Color.parseColor("#FFFFA0")); // Background color (set to transparent to show border)
-                statusColour.setBackground(gradientDrawable1);
-                statusColour.invalidate();
-            }
-            if (order.getStatus().toString().equals("Pending")) {
-                // Create a GradientDrawable to set the border color and width
-                GradientDrawable gradientDrawable2 = new GradientDrawable();
-                gradientDrawable2.setShape(GradientDrawable.RECTANGLE);
-                gradientDrawable2.setStroke(10, Color.parseColor("#FFD7A0")); // Border width and color
-                gradientDrawable2.setColor(Color.parseColor("#FFD7A0")); // Background color (set to transparent to show border)
-                statusColour.setBackground(gradientDrawable2);
-                statusColour.invalidate();
-            }
-            if (order.getStatus().toString().equals("Repairing")) {
-                // Create a GradientDrawable to set the border color and width
-                GradientDrawable gradientDrawable3 = new GradientDrawable();
-                gradientDrawable3.setShape(GradientDrawable.RECTANGLE);
-                gradientDrawable3.setStroke(10, Color.parseColor("#D6B4FC")); // Border width and color
-                gradientDrawable3.setColor(Color.parseColor("#D6B4FC")); // Background color (set to transparent to show border)
-                statusColour.setBackground(gradientDrawable3);
-                statusColour.invalidate();
-            }
-            if (order.getStatus().toString().equals("Arrange")) {
-                // Create a GradientDrawable to set the border color and width
-
-                GradientDrawable gradientDrawable = new GradientDrawable();
-                gradientDrawable.setShape(GradientDrawable.RECTANGLE);
-                gradientDrawable.setStroke(10, Color.parseColor("#83f28f")); // Border width and color
-                gradientDrawable.setColor(Color.parseColor("#83f28f")); // Background color (set to transparent to show border)
-                statusColour.setBackground(gradientDrawable);
-                statusColour.invalidate();
-            }
-            if (order.getStatus().toString().equals("Issues")) {
-                // Create a GradientDrawable to set the border color and width
-                GradientDrawable gradientDrawable = new GradientDrawable();
-                gradientDrawable.setShape(GradientDrawable.RECTANGLE);
-                gradientDrawable.setStroke(10, Color.parseColor("#FFC0CB")); // Border width and color  FFC0CB
-                gradientDrawable.setColor(Color.parseColor("#FFC0CB")); // Background color (set to transparent to show border)
-                statusColour.setBackground(gradientDrawable);
-                statusColour.invalidate();
-            }
-            if (order.getStatus().toString().equals("Completed")) {
-                // Create a GradientDrawable to set the border color and width
-                GradientDrawable gradientDrawable = new GradientDrawable();
-                gradientDrawable.setShape(GradientDrawable.RECTANGLE);
-                gradientDrawable.setStroke(10, Color.parseColor("#90EE90")); // Border width and color  90EE90
-                gradientDrawable.setColor(Color.parseColor("#90EE90")); // Background color (set to transparent to show border)
-                statusColour.setBackground(gradientDrawable);
-                statusColour.invalidate();
-            }
-            if (order.getStatus().toString().equals(null)) {
-                // do nothing
-            }
-             */
-
-            if (newStatus.equals("OTW")) {
-                // Create a GradientDrawable to set the border color and width
-                GradientDrawable gradientDrawable = new GradientDrawable();
-                gradientDrawable.setShape(GradientDrawable.RECTANGLE);
-                gradientDrawable.setStroke(10, Color.parseColor("#FFFFA0")); // Border width and color
-                gradientDrawable.setColor(Color.parseColor("#FFFFA0")); // Background color (set to transparent to show border)
-                statusColour.setBackground(gradientDrawable);
-            }
-            if (newStatus.equals("Pending")) {
-                // Create a GradientDrawable to set the border color and width
-                GradientDrawable gradientDrawable = new GradientDrawable();
-                gradientDrawable.setShape(GradientDrawable.RECTANGLE);
-                gradientDrawable.setStroke(10, Color.parseColor("#FFD7A0")); // Border width and color
-                gradientDrawable.setColor(Color.parseColor("#FFD7A0")); // Background color (set to transparent to show border)
-                statusColour.setBackground(gradientDrawable);
-            }
-            if (newStatus.equals("Repairing")) {
-                // Create a GradientDrawable to set the border color and width
-                GradientDrawable gradientDrawable = new GradientDrawable();
-                gradientDrawable.setShape(GradientDrawable.RECTANGLE);
-                gradientDrawable.setStroke(10, Color.parseColor("#BDBDBD")); // Border width and color
-                gradientDrawable.setColor(Color.parseColor("#BDBDBD")); // Background color (set to transparent to show border)
-                statusColour.setBackground(gradientDrawable);
-            }
-            if (newStatus.equals("Arrange")) {
-                // Create a GradientDrawable to set the border color and width
-                GradientDrawable gradientDrawable = new GradientDrawable();
-                gradientDrawable.setShape(GradientDrawable.RECTANGLE);
-                gradientDrawable.setStroke(10, Color.parseColor("#C2C2F0")); // Border width and color
-                gradientDrawable.setColor(Color.parseColor("#C2C2F0")); // Background color (set to transparent to show border)
-                statusColour.setBackground(gradientDrawable);
-            }
-            if (newStatus.equals("Issues")) {
-                // Create a GradientDrawable to set the border color and width
-                GradientDrawable gradientDrawable = new GradientDrawable();
-                gradientDrawable.setShape(GradientDrawable.RECTANGLE);
-                gradientDrawable.setStroke(10, Color.parseColor("#FFC0CB")); // Border width and color
-                gradientDrawable.setColor(Color.parseColor("#FFC0CB")); // Background color (set to transparent to show border)
-                statusColour.setBackground(gradientDrawable);
-            }
-            if (newStatus.equals("Completed")) {
-                // Create a GradientDrawable to set the border color and width
-                GradientDrawable gradientDrawable = new GradientDrawable();
-                gradientDrawable.setShape(GradientDrawable.RECTANGLE);
-                gradientDrawable.setStroke(10, Color.parseColor("#90EE90")); // Border width and color
-                gradientDrawable.setColor(Color.parseColor("#90EE90")); // Background color (set to transparent to show border)
-                statusColour.setBackground(gradientDrawable);
-            }
-        }
 
         public void menuButtons(View v, Order order) {
             if (v.getId() == R.id.imageButtonMenu) {
@@ -584,8 +468,8 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
                                 public void onSuccess(Void aVoid) {
                                     Log.d("OrderAdapter", "Order sent to Completed collection");
                                     // Optionally, you can remove the order from the RecyclerView
-                                    deleteOrderFromOrders(orderID);
-                                    refreshScreen();
+                                    changeorderCompletionDate(order);
+
                                 }
                             })
                             .addOnFailureListener(new OnFailureListener() {
@@ -598,6 +482,56 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
                 }
             }
         }
+
+
+        public String getFormattedDate() {
+            // Get today's date
+            Date today = new Date();
+
+            // Define the format
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM", Locale.ENGLISH);
+
+            // Format the date
+            String formattedDate = dateFormat.format(today);
+
+            return formattedDate.toUpperCase(); // Convert to uppercase as per your example
+        }
+
+
+        public void changeorderCompletionDate(Order order) {
+            String currentDate = order.getDate();
+            if(!currentDate.isEmpty()) {
+                // get todays current date DD.MM
+                currentDate = getFormattedDate();
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+                // Reference to the document in the "Orders" collection
+                DocumentReference orderRef = db.collection("Orders").document(order.getOrderID().toString());
+
+                // Create a map with the updated status field
+                Map<String, Object> updates = new HashMap<>();
+                updates.put("Date", currentDate);
+
+                // Update the document with the new status field
+                orderRef.update(updates)
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Log.d("TAG", "Document Date Changed Successfully");
+                                deleteOrderFromOrders(order.getOrderID().toString());
+                                refreshScreen();
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.e("TAG", "Error updating document status", e);
+                            }
+                        });
+            }
+
+        }
+
 
 
         private void deleteOrderFromOrders(String orderID) {
